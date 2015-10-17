@@ -16,6 +16,10 @@
 		6C079E1D1BD2CDC9000CA680 /* SSConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C079E1C1BD2CDC9000CA680 /* SSConstants.swift */; settings = {ASSET_TAGS = (); }; };
 		6C079E231BD2CE22000CA680 /* SSRootItemsListVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C079E221BD2CE22000CA680 /* SSRootItemsListVC.swift */; settings = {ASSET_TAGS = (); }; };
 		6C079E251BD2D1B3000CA680 /* SSRootItemTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C079E241BD2D1B3000CA680 /* SSRootItemTableViewCell.swift */; settings = {ASSET_TAGS = (); }; };
+		6C079E271BD2D8D4000CA680 /* SSWebServicesManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C079E261BD2D8D4000CA680 /* SSWebServicesManager.swift */; settings = {ASSET_TAGS = (); }; };
+		6C079E2B1BD2DB88000CA680 /* SSOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C079E2A1BD2DB88000CA680 /* SSOperation.swift */; settings = {ASSET_TAGS = (); }; };
+		6C079E2D1BD2DF4C000CA680 /* SSItemModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C079E2C1BD2DF4C000CA680 /* SSItemModel.swift */; settings = {ASSET_TAGS = (); }; };
+		6C079E2F1BD2E16C000CA680 /* SSItemsOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C079E2E1BD2E16C000CA680 /* SSItemsOperation.swift */; settings = {ASSET_TAGS = (); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,6 +34,10 @@
 		6C079E1C1BD2CDC9000CA680 /* SSConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SSConstants.swift; sourceTree = "<group>"; };
 		6C079E221BD2CE22000CA680 /* SSRootItemsListVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SSRootItemsListVC.swift; sourceTree = "<group>"; };
 		6C079E241BD2D1B3000CA680 /* SSRootItemTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SSRootItemTableViewCell.swift; sourceTree = "<group>"; };
+		6C079E261BD2D8D4000CA680 /* SSWebServicesManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SSWebServicesManager.swift; sourceTree = "<group>"; };
+		6C079E2A1BD2DB88000CA680 /* SSOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SSOperation.swift; sourceTree = "<group>"; };
+		6C079E2C1BD2DF4C000CA680 /* SSItemModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SSItemModel.swift; sourceTree = "<group>"; };
+		6C079E2E1BD2E16C000CA680 /* SSItemsOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SSItemsOperation.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -102,6 +110,9 @@
 		6C079E181BD2CD94000CA680 /* Backend */ = {
 			isa = PBXGroup;
 			children = (
+				6C079E261BD2D8D4000CA680 /* SSWebServicesManager.swift */,
+				6C079E291BD2DB72000CA680 /* Parsers */,
+				6C079E281BD2DB72000CA680 /* Models */,
 			);
 			name = Backend;
 			path = SaltSideAssignment/Classes/Backend;
@@ -124,6 +135,23 @@
 				6C079E241BD2D1B3000CA680 /* SSRootItemTableViewCell.swift */,
 			);
 			path = RootItems;
+			sourceTree = "<group>";
+		};
+		6C079E281BD2DB72000CA680 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				6C079E2C1BD2DF4C000CA680 /* SSItemModel.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		6C079E291BD2DB72000CA680 /* Parsers */ = {
+			isa = PBXGroup;
+			children = (
+				6C079E2A1BD2DB88000CA680 /* SSOperation.swift */,
+				6C079E2E1BD2E16C000CA680 /* SSItemsOperation.swift */,
+			);
+			path = Parsers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -196,11 +224,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6C079E2F1BD2E16C000CA680 /* SSItemsOperation.swift in Sources */,
+				6C079E271BD2D8D4000CA680 /* SSWebServicesManager.swift in Sources */,
 				6C079E251BD2D1B3000CA680 /* SSRootItemTableViewCell.swift in Sources */,
 				6C079E231BD2CE22000CA680 /* SSRootItemsListVC.swift in Sources */,
+				6C079E2B1BD2DB88000CA680 /* SSOperation.swift in Sources */,
 				6C079E1B1BD2CDB4000CA680 /* SSUtility.swift in Sources */,
 				6C079E111BD2AA6C000CA680 /* AppDelegate.swift in Sources */,
 				6C079E1D1BD2CDC9000CA680 /* SSConstants.swift in Sources */,
+				6C079E2D1BD2DF4C000CA680 /* SSItemModel.swift in Sources */,
 				6C079E171BD2CB9B000CA680 /* SSItemDetailsVC.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
