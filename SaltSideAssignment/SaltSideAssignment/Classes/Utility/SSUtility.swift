@@ -9,5 +9,17 @@
 import UIKit
 
 class SSUtility: NSObject {
-
+    
+    class func showAlertWithTitle(title: String?, alertMessage message: String?, dismissButtonsTitle dismissTitle: String?, inController controller: UIViewController?) {
+        let alertController: UIAlertController = UIAlertController(title: title, message: message, preferredStyle: .Alert)
+        let okayAction: UIAlertAction = UIAlertAction(title: dismissTitle!, style: .Default, handler: nil)
+        alertController.addAction(okayAction)
+        
+        if let cntrl = controller {
+            cntrl.presentViewController(alertController, animated: true, completion: nil)
+        }else {
+            let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+            appDelegate.window?.rootViewController!.presentViewController(alertController, animated: true, completion: nil)
+        }
+    }
 }
