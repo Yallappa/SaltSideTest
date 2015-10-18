@@ -16,6 +16,7 @@ class SSRootItemsListVC: UIViewController, NSFetchedResultsControllerDelegate {
     
     var refreshControl = UIRefreshControl()
     var fetchingItems = false
+    var justRefreshedData = false
     
     var itemsArray: Array<SSItemModel>? = nil
     var imageDownloadsInProgress: Dictionary<String, SSImageDownloader> = [:]
@@ -82,6 +83,8 @@ class SSRootItemsListVC: UIViewController, NSFetchedResultsControllerDelegate {
             (operationObject, result) -> () in
             
             self.fetchingItems = false
+            self.justRefreshedData = true
+            
             self.refreshControl.endRefreshing()
             self.activityIndicator.stopAnimating()
             
@@ -192,7 +195,10 @@ class SSRootItemsListVC: UIViewController, NSFetchedResultsControllerDelegate {
                             tableCell.itemImageView.alpha = 1.0
                         })
                     }else {
-                        weakerMe.tableView.reloadData()
+                        if weakerMe.justRefreshedData {
+                            weakerMe.justRefreshedData = false
+                            weakerMe.tableView.reloadData()
+                        }
                     }
                     
                     self.imageDownloadsInProgress[itemObject!.imageLink!] = nil
