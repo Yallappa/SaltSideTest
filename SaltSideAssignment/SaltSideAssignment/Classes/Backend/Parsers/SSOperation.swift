@@ -13,9 +13,9 @@ class SSOperation: NSOperation {
     var error: NSError? = nil
     var status: Bool = false
     
-    var completionHandler: ((operation: SSOperation, result: AnyObject?) ->())!
+    var completionHandler: ((operation: SSOperation, status: Bool) ->())!
     
-    init(completionHandler: (operation: SSOperation, result: AnyObject?) -> ()) {
+    init(completionHandler: (operation: SSOperation, status: Bool) -> ()) {
         super.init()
         
         self.completionHandler = completionHandler

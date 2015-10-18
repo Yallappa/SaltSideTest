@@ -7,8 +7,9 @@
 //
 
 import UIKit
+import CoreData
 
-class SSRootItemsListVC: UIViewController {
+class SSRootItemsListVC: UIViewController, NSFetchedResultsControllerDelegate {
 
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
@@ -18,6 +19,19 @@ class SSRootItemsListVC: UIViewController {
     
     var itemsArray: Array<SSItemModel>? = nil
     var imageDownloadsInProgress: Dictionary<String, SSImageDownloader> = [:]
+    let managedObjectContext = SSCoreDataController.sharedInstance.managedObjectContext
+    
+    lazy var fetchedResultsController: NSFetchedResultsController = {
+        let itemsFetchRequest = NSFetchRequest(entityName: "SSItemModel")
+        itemsFetchRequest.fetchBatchSize = 20
+        let sortDescriptor = NSSortDescriptor(key: "index", ascending: true)
+        itemsFetchRequest.sortDescriptors = [sortDescriptor]
+        
+        let frc = NSFetchedResultsController(fetchRequest:itemsFetchRequest, managedObjectContext:self.managedObjectContext!, sectionNameKeyPath: nil, cacheName: nil)
+        frc.delegate = self
+        
+        return frc
+        }()
     
     // MARK: - View Heirarchy
     
@@ -44,7 +58,12 @@ class SSRootItemsListVC: UIViewController {
     
     
     func updateUI() {
-        tableView.reloadData()
+        do {
+            try fetchedResultsController.performFetch()
+            tableView.reloadData()
+        } catch {
+            print("An error occurred")
+        }
     }
     
     
@@ -55,6 +74,8 @@ class SSRootItemsListVC: UIViewController {
             return
         }
         
+        cleanUp()
+        
         self.fetchingItems = true
         activityIndicator.startAnimating()
         SSWebServicesManager.sharedInstance.fetchItems {
@@ -63,18 +84,14 @@ class SSRootItemsListVC: UIViewController {
             self.fetchingItems = false
             self.refreshControl.endRefreshing()
             self.activityIndicator.stopAnimating()
-            self.itemsArray = result
             
             if let error = operationObject.error {
-                SSUtility.showAlertWithTitle("Error!", alertMessage: error.localizedDescription, dismissButtonsTitle: "OK", inController: self)
+                let errorDescription = error.localizedDescription + "\nStill you can browse in offline"
+                SSUtility.showAlertWithTitle("Error!", alertMessage: errorDescription, dismissButtonsTitle: "OK", inController: self)
                 
+                self.updateUI()
             }else {
-                if self.itemsArray?.count > 0 {
-                    self.updateUI()
-                    
-                }else {
-                    SSUtility.showAlertWithTitle("", alertMessage: "No items to show at this time. Please try again later.", dismissButtonsTitle: "OK", inController: self)
-                }
+                self.updateUI()
             }
         }
     }
@@ -84,8 +101,9 @@ class SSRootItemsListVC: UIViewController {
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         var count: Int = 0
-        if let items =  itemsArray {
-            count = items.count
+        if let sections = fetchedResultsController.sections {
+            let currentSection = sections[section]
+            count = currentSection.numberOfObjects
         }
         
         return count
@@ -94,15 +112,19 @@ class SSRootItemsListVC: UIViewController {
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("SSRootItemTableViewCell") as? SSRootItemTableViewCell
         
-        let itemObject = itemsArray![indexPath.row]
-        cell?.titleLabel.text = itemObject.title
+        let itemObject = fetchedResultsController.objectAtIndexPath(indexPath) as? SSItemModel
+        cell?.titleLabel.text = itemObject!.title
         
         cell!.itemImageView.image = nil
-        if (itemObject.image != nil) {
-            cell!.itemImageView.image = itemObject.image
+        if (itemObject!.image != nil) {
+            cell!.itemImageView.image = itemObject!.image
         }
         else {
-            startImageDownloadFor(indexPath)
+            let scale = UIScreen.mainScreen().scale
+            var thumbImageSize = cell!.itemImageView.bounds.size
+            thumbImageSize.height = thumbImageSize.height * scale
+            thumbImageSize.width = thumbImageSize.width * scale
+            startImageDownloadFor(indexPath, withSize: thumbImageSize)
         }
         
         return cell!
@@ -112,13 +134,13 @@ class SSRootItemsListVC: UIViewController {
     // MARK: - UITableViewDelegate
     
     func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
-        var cellHeight: CGFloat = 80.0
+        var cellHeight: CGFloat = 80.0//Minimum cell height
         
-        let itemObject = itemsArray![indexPath.row]
+        let itemObject = fetchedResultsController.objectAtIndexPath(indexPath) as? SSItemModel
         let sizeConstriant = CGSizeMake((tableView.bounds.width - 98.0), CGFloat.infinity)
         let cellFont = UIFont.systemFontOfSize(14.0)
         
-        let heightOfString = SSUtility.stringSize(itemObject.title!, withSizeConstraint: sizeConstriant, andFont: cellFont).height + 12.0
+        let heightOfString = SSUtility.stringSize(itemObject!.title!, withSizeConstraint: sizeConstriant, andFont: cellFont).height + 12.0
         if (heightOfString > cellHeight) {
             cellHeight = heightOfString
         }
@@ -128,7 +150,11 @@ class SSRootItemsListVC: UIViewController {
     
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        let itemModel = itemsArray![indexPath.row]
+        if fetchingItems {
+            return
+        }
+        
+        let itemModel = fetchedResultsController.objectAtIndexPath(indexPath) as? SSItemModel
         let itemDetailsVC = storyboard?.instantiateViewControllerWithIdentifier("SSItemDetailsVC") as? SSItemDetailsVC
         itemDetailsVC!.itemModel = itemModel
         
@@ -138,31 +164,38 @@ class SSRootItemsListVC: UIViewController {
     
     // MARK: - Download thumb images of products
     
-    func startImageDownloadFor(indexPath: NSIndexPath) {
-        let itemObject = itemsArray![indexPath.row]
-
-        let imageLink = itemObject.imageLink
+    func startImageDownloadFor(indexPath: NSIndexPath, withSize size: CGSize) {
+        let itemObject = fetchedResultsController.objectAtIndexPath(indexPath) as? SSItemModel
+        
+        let imageLink = itemObject!.imageLink
         var imageDownloader = imageDownloadsInProgress[imageLink!]
         
         if (imageDownloader == nil) {
             imageDownloader = SSImageDownloader()
-            imageDownloader?.imageModel = itemObject
+            imageDownloader?.imageLink = imageLink!
+            imageDownloader?.isThumbImage = true
+            imageDownloader?.thumbImageSize = size
+            imageDownloader?.delegate = itemObject
             
-            imageDownloadsInProgress[itemObject.imageLink!] = imageDownloader
+            imageDownloadsInProgress[itemObject!.imageLink!] = imageDownloader
             weak var weakSelf = self
             
-            imageDownloader?.startDownload({ () -> () in
+            imageDownloader?.starDownload({
+                (downloadedImage) -> () in
+                
                 if let weakerMe = weakSelf {
                     if let tableCell = weakerMe.tableView.cellForRowAtIndexPath(indexPath) as? SSRootItemTableViewCell {
                         tableCell.itemImageView.alpha = 0.0
-                        tableCell.itemImageView.image = itemObject.image
+                        tableCell.itemImageView.image = itemObject!.image
                         
                         UIView.animateWithDuration(0.5, animations: { () -> Void in
                             tableCell.itemImageView.alpha = 1.0
                         })
+                    }else {
+                        weakerMe.tableView.reloadData()
                     }
                     
-                    self.imageDownloadsInProgress[itemObject.imageLink!] = nil
+                    self.imageDownloadsInProgress[itemObject!.imageLink!] = nil
                 }
             })
         }
@@ -178,13 +211,7 @@ class SSRootItemsListVC: UIViewController {
         imageDownloadsInProgress.removeAll(keepCapacity: false)
     }
     
-    
-    deinit {
-        NSNotificationCenter.defaultCenter().removeObserver(self)
-        cleanUp()
-    }
 
-    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.

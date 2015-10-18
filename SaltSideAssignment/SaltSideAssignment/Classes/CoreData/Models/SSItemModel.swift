@@ -6,19 +6,16 @@
 //  Copyright © 2015 Yallappa. All rights reserved.
 //
 
+import Foundation
+import CoreData
 import UIKit
 
-class SSItemModel: SSImageBaseModel {
+class SSItemModel: NSManagedObject, SSImageDownloaderDelegate {
+    var image : UIImage? = nil
     
-    var imageURLString: String? = nil
-    var itemDescription: String? = nil
-    var title: String? = nil
-    
-    init(parseDict: Dictionary<String, AnyObject>) {
-        super.init()
-        
+    // Insert code here to add functionality to your managed object subclass
+    func addItem(parseDict: Dictionary<String, AnyObject>, forIndex orderIndex: Int) {
         if let imageURLStringValue = parseDict["image"] as? String {
-            self.imageURLString = imageURLStringValue
             self.imageLink = imageURLStringValue
         }
         if let itemDescriptionValue = parseDict["description"] as? String {
@@ -27,5 +24,11 @@ class SSItemModel: SSImageBaseModel {
         if let titleValue = parseDict["title"] as? String {
             self.title = titleValue
         }
+        self.index = orderIndex
+    }
+    
+    
+    func imageDownloader(imageDownloader: SSImageDownloader, didDownloadImage image: UIImage) {
+        self.image = image
     }
 }

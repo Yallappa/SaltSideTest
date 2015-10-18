@@ -30,8 +30,9 @@ class SSRootItemTableViewCell: UITableViewCell {
         
         
         layer = itemImageView.layer
-        layer.shouldRasterize = true
-        layer.rasterizationScale = UIScreen.mainScreen().scale
+        layer.masksToBounds = true
+//        layer.shouldRasterize = true
+//        layer.rasterizationScale = UIScreen.mainScreen().scale
         
         layer.cornerRadius = 4.0
         layer.borderColor = UIColor(red: 26.0 / 255, green: 196.0 / 255, blue: 251.0 / 255, alpha: 1.0).CGColor

@@ -25,14 +25,14 @@ class SSItemDetailsVC: UIViewController {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
+        title = "Details"
+        
         navigationController?.hidesBarsOnSwipe = true
         
         if (itemModel!.image != nil) {
             tableHeaderImageView.image = itemModel!.image
         }
-        else {
-            startHeaderImageDownload()
-        }
+        startHeaderImageDownload()
     }
     
     
@@ -66,7 +66,7 @@ class SSItemDetailsVC: UIViewController {
     // MARK: - UITableViewDelegate
     
     func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
-        var cellHeight: CGFloat = 100.0
+        var cellHeight: CGFloat = 100.0//Minimum cell height
         var labelString = ""
         
         switch indexPath.row {
@@ -83,13 +83,14 @@ class SSItemDetailsVC: UIViewController {
         let sizeConstriant = CGSizeMake((tableView.bounds.width - 20.0), CGFloat.infinity)
         let cellFont = UIFont.systemFontOfSize(14.0)
         
-        let heightOfString = SSUtility.stringSize(labelString, withSizeConstraint: sizeConstriant, andFont: cellFont).height + 52.0
+        let heightOfString = SSUtility.stringSize(labelString, withSizeConstraint: sizeConstriant, andFont: cellFont).height + 58.0
         if (heightOfString > cellHeight) {
             cellHeight = heightOfString
         }
         
         return cellHeight
     }
+    
     
     // MARK: - Download thumb images of products
     
@@ -98,14 +99,17 @@ class SSItemDetailsVC: UIViewController {
         
         if (headerImageDownloader == nil) {
             self.headerImageDownloader = SSImageDownloader()
-            headerImageDownloader?.imageModel = itemModel
+            headerImageDownloader?.isThumbImage = false
+            headerImageDownloader?.imageLink = (itemModel?.imageLink)!
             
             weak var weakSelf = self
-            headerImageDownloader?.startDownload({ () -> () in
+            headerImageDownloader?.starDownload({
+                (downloadedImage) -> () in
+                
                 if let weakerMe = weakSelf {
                     weakerMe.activityIndicator.stopAnimating()
                     weakerMe.tableHeaderImageView.alpha = 0.0
-                    weakerMe.tableHeaderImageView.image = weakerMe.itemModel!.image
+                    weakerMe.tableHeaderImageView.image = downloadedImage
                     
                     UIView.animateWithDuration(0.5, animations: { () -> Void in
                         weakerMe.tableHeaderImageView.alpha = 1.0
