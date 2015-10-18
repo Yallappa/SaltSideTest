@@ -22,4 +22,14 @@ class SSUtility: NSObject {
             appDelegate.window?.rootViewController!.presentViewController(alertController, animated: true, completion: nil)
         }
     }
+    
+    
+    class func stringSize(string: String, withSizeConstraint constraint: CGSize, andFont font: UIFont) -> (CGSize) {
+        let keyLabelText = NSString(string: string)
+        let sizeOfString = keyLabelText.boundingRectWithSize(constraint, options: .UsesLineFragmentOrigin,
+            attributes: [NSFontAttributeName: font],
+            context: nil).size
+        
+        return sizeOfString
+    }
 }

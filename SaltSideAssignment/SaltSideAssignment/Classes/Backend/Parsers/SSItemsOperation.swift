@@ -10,7 +10,7 @@ import UIKit
 
 class SSItemsOperation: SSOperation {
     
-    override init(completionHandler: (opertion: SSOperation, result: AnyObject?) -> ()) {
+    override init(completionHandler: (operation: SSOperation, result: AnyObject?) -> ()) {
         super.init(completionHandler: completionHandler)
         
     }
@@ -22,19 +22,28 @@ class SSItemsOperation: SSOperation {
         let urlSessionTask = urlSession.dataTaskWithRequest(urlRequest) {
             (data, _, error) -> Void in
             
-            do {
-                var itemObjectsArray: Array<SSItemModel> = []
-                let jsonObject = try NSJSONSerialization.JSONObjectWithData(data!, options: .MutableContainers)
-                if let itemsArray = jsonObject as? Array<Dictionary<String, AnyObject>> {
-                    for item in itemsArray {
-                        let itemModel = SSItemModel(parseDict: item)
-                        itemObjectsArray.append(itemModel)
+            if error == nil {
+                do {
+                    var itemObjectsArray: Array<SSItemModel> = []
+                    let jsonObject = try NSJSONSerialization.JSONObjectWithData(data!, options: .MutableContainers)
+                    if let itemsArray = jsonObject as? Array<Dictionary<String, AnyObject>> {
+                        for item in itemsArray {
+                            let itemModel = SSItemModel(parseDict: item)
+                            itemObjectsArray.append(itemModel)
+                        }
                     }
+                    
+                    self.completionHandler(operation: self, result: itemObjectsArray)
+                    
+                } catch let error as NSError {
+                    self.error = error
+                    self.completionHandler(operation: self, result: nil)
+                    
+                    abort()
                 }
-                
-            } catch let error as NSError {
-                print("Error: \(error.localizedDescription)")
-                abort()
+            }else {
+                self.error = error
+                self.completionHandler(operation: self, result: nil)
             }
         }
         urlSessionTask.resume()

@@ -26,11 +26,20 @@ class SSWebServicesManager: NSObject {
     }
     
     
-    func fetchItems(completionHandler: (operationObject: SSOperation, result: Array<SSItemModel>)) {
+    func fetchItems(completionHandler: (operationObject: SSOperation, result: Array<SSItemModel>?) -> ()) {
         let itemsOperation = SSItemsOperation() {
-            (opertion, result) -> () in
+            (operation, result) -> () in
             
-            
+            if let itemsList = result as? Array<SSItemModel> {
+                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    completionHandler(operationObject: operation, result: itemsList)
+                })
+                
+            }else {
+                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    completionHandler(operationObject: operation, result: nil)
+                })
+            }
         }
         
         itemsOperation.url = NSURL(string: kItemsListURL)

@@ -15,7 +15,7 @@ class SSOperation: NSOperation {
     
     var completionHandler: ((operation: SSOperation, result: AnyObject?) ->())!
     
-    init(completionHandler: (opertion: SSOperation, result: AnyObject?) -> ()) {
+    init(completionHandler: (operation: SSOperation, result: AnyObject?) -> ()) {
         super.init()
         
         self.completionHandler = completionHandler
