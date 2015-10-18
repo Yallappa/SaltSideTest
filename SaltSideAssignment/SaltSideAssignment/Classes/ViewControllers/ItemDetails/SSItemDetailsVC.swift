@@ -25,6 +25,8 @@ class SSItemDetailsVC: UIViewController {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
+        navigationController?.hidesBarsOnSwipe = true
+        
         if (itemModel!.image != nil) {
             tableHeaderImageView.image = itemModel!.image
         }

@@ -36,6 +36,13 @@ class SSRootItemsListVC: UIViewController {
     }
     
     
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        navigationController?.hidesBarsOnSwipe = false
+    }
+    
+    
     func updateUI() {
         tableView.reloadData()
     }
